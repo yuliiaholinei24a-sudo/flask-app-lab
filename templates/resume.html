@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <aside class="col-md-3 mb-4">
+        <div class="side-menu">
+            <h5>Навігація</h5>
+            <a href="#about">Про себе</a>
+            <a href="#education">Освіта</a>
+            <a href="#skills">Навички</a>
+            <a href="#technologies">Технології</a>
+            <a href="#projects">Проєкти</a>
+            <a href="{{ url_for('contacts') }}">Контакти</a>
+        </div>
+    </aside>
+
+    <div class="col-md-9">
+        <header class="profile">
+            <img src="{{ url_for('static', filename='images/photo.jpg') }}"
+                 alt="Моє фото" class="profile-photo">
+            <div>
+                <h1>Юлія Голіней</h1>
+                <p>Студентка програмної інженерії</p>
+            </div>
+        </header>
+
+        <section id="about" class="resume-section">
+            <h2>Про себе</h2>
+            <p>Навчаюся програмної інженерії та цікавлюся веброзробкою.
+            Подобається створювати зрозумілі й зручні інтерфейси.</p>
+        </section>
+
+        <section id="education" class="resume-section">
+            <h2>Освіта</h2>
+            <p>Прикарпатський національний університет
+            імені Василя Стефаника.</p>
+            <p>Спеціальність — програмна інженерія.</p>
+        </section>
+
+        <section id="skills" class="resume-section">
+            <h2>Навички</h2>
+            <ul>
+                <li>Основи програмування</li>
+                <li>Робота з Git</li>
+                <li>Створення вебсторінок</li>
+                <li>Робота в команді</li>
+            </ul>
+        </section>
+
+        <section id="technologies" class="resume-section">
+            <h2>Технології</h2>
+            <p>HTML, CSS, JavaScript, Python, Flask, Git, Bootstrap.</p>
+        </section>
+
+        <section id="projects" class="resume-section">
+            <h2>Проєкти</h2>
+            <p>Навчальні проєкти з програмування та веброзробки.</p>
+        </section>
+    </div>
+</div>
+{% endblock %}
