@@ -20,6 +20,7 @@ body {
     border-radius: 10px;
     position: sticky;
     top: 20px;
+    max-width: 180px;
 }
 
 .side-menu a {
