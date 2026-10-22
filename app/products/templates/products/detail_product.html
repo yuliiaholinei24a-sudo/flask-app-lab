@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="book-detail">
+
+    <div class="row align-items-center g-4">
+
+        <div class="col-md-5 text-center">
+            <img
+                src="{{ url_for('static', filename=product.image) }}"
+                class="detail-cover"
+                alt="Обкладинка книги {{ product.name }}"
+            >
+        </div>
+
+        <div class="col-md-7">
+
+            <h1 class="books-title">
+                {{ product.name }}
+            </h1>
+
+            <h5 class="book-author mb-4">
+                {{ product.author }}
+            </h5>
+
+            <h4>Про книгу</h4>
+
+            <p class="detail-description">
+                {{ product.content }}
+            </p>
+
+            <h3 class="book-price my-4">
+                {{ product.price }} грн
+            </h3>
+
+            <a href="{{ url_for('products.product_list') }}"
+               class="btn book-btn">
+                ← Назад до каталогу
+            </a>
+
+        </div>
+    </div>
+
+</section>
+
+{% endblock %}

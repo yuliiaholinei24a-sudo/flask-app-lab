@@ -1,3 +1,4 @@
+
 body {
     margin: 0;
     background-color: #f7f4ef;
@@ -62,17 +63,6 @@ body {
 }
 
 .contact-page {
-    max-width: 750px;
-    margin: 0 auto;
-}
-
-footer {
-    background-color: #e9dfd2;
-    color: #684b35;
-    margin-top: 30px;
-}
-
-.contact-page {
     width: 100%;
     max-width: 750px;
     margin: 0 auto;
@@ -103,6 +93,119 @@ footer {
     text-decoration: underline;
 }
 
+footer {
+    background-color: #e9dfd2;
+    color: #684b35;
+    margin-top: 30px;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.books-page {
+    padding: 20px 0 40px;
+}
+
+.books-title {
+    color: #684b35;
+    font-weight: bold;
+}
+
+.book-card {
+    background-color: white;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(48, 43, 39, 0.12);
+}
+
+.book-image-container {
+    background-color: #eee8df;
+    height: 330px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.book-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.book-card .card-body {
+    padding: 24px;
+}
+
+.book-name {
+    color: #684b35;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.book-author {
+    color: #8b7565;
+    font-size: 15px;
+}
+
+.book-description {
+    color: #5b514a;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.book-price {
+    color: #684b35;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.book-btn {
+    background-color: #684b35;
+    color: white;
+    border: 1px solid #684b35;
+    border-radius: 8px;
+    padding: 10px 22px;
+    transition: background-color 0.2s ease;
+}
+
+.book-btn:hover {
+    background-color: #a45c25;
+    border-color: #a45c25;
+    color: white;
+}
+
+.book-detail {
+    background-color: white;
+    border-radius: 12px;
+    padding: 40px;
+    margin: 30px auto;
+}
+
+.detail-cover {
+    width: 100%;
+    max-width: 300px;
+    max-height: 450px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.detail-description {
+    color: #5b514a;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
 @media (max-width: 767px) {
     .contact-page {
         padding: 0 5px;
@@ -115,5 +218,18 @@ footer {
     .contact-icon {
         width: 22px;
         height: 22px;
+    }
+
+    .book-image-container {
+        height: 280px;
+    }
+
+    .book-detail {
+        padding: 20px;
+        margin: 10px auto;
+    }
+
+    .detail-cover {
+        max-width: 230px;
     }
 }
