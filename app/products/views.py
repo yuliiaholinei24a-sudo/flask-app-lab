@@ -1,5 +1,11 @@
-from flask import render_template, abort
+from datetime import datetime
+from decimal import Decimal
+
+from flask import abort, flash, redirect, render_template, url_for
+
 from . import product_bp
+from .db import products_table
+from .forms import ProductForm
 
 products = [
     {
@@ -52,4 +58,40 @@ def product_detail(product_id):
         "products/detail_product.html",
         title=product["name"],
         product=product
+    )
+
+
+@product_bp.route("/add", methods=["GET", "POST"])
+def product_add():
+    form = ProductForm()
+
+    if form.validate_on_submit():
+        price = form.price.data.quantize(Decimal("0.01"))
+
+        product = {
+            "name": form.name.data.strip(),
+            "content": form.content.data.strip(),
+            "price": str(price),
+            "category": form.category.data,
+            "quantity": form.quantity.data,
+            "image": "",
+            "created_at": datetime.now().isoformat(timespec="seconds"),
+        }
+
+        product_id = products_table.insert(product)
+        products_table.update(
+            {"id": product_id},
+            doc_ids=[product_id],
+        )
+
+        flash("Книжку успішно додано!", "success")
+        return redirect(url_for("products.product_add"))
+
+    if form.is_submitted() and form.errors:
+        flash("Перевірте правильність заповнення форми", "danger")
+
+    return render_template(
+        "products/add_product.html",
+        title="Додати книжку",
+        form=form,
     )
