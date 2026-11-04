@@ -97,11 +97,11 @@ def add_cookie():
     try:
         max_age = int(max_age)
     except ValueError:
-        flash("Термін дії має бути цілим числом!", "danger")
+        flash("Термін дії має бути цілим числом", "danger")
         return redirect(url_for("users.profile"))
 
     if not 1 <= max_age <= 34560000:
-        flash("Термін дії має бути від 1 до 34560000 секунд!", "danger")
+        flash("Термін дії має бути від 1 до 34560000 секунд", "danger")
         return redirect(url_for("users.profile"))
 
     response = make_response(redirect(url_for("users.profile")))

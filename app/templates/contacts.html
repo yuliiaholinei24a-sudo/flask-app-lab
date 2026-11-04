@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "render_field.html" import render_field %}
 
 {% block content %}
 <div class="contact-page">
@@ -10,7 +11,9 @@
         <div class="contact-item">
             <img src="{{ url_for('static', filename='images/email.png') }}"
                  alt="Email" class="contact-icon">
-            <a href="mailto:yuliia.holinei.24a@pnu.edu.ua">yuliia.holinei.24a@pnu.edu.ua</a>
+            <a href="mailto:yuliia.holinei.24a@pnu.edu.ua">
+                yuliia.holinei.24a@pnu.edu.ua
+            </a>
         </div>
 
         <div class="contact-item">
@@ -35,29 +38,16 @@
     <section class="resume-section">
         <h2>Написати повідомлення</h2>
 
-        <form action="#" method="get">
-            <div class="mb-3">
-                <label for="name" class="form-label">Ім'я</label>
-                <input type="text" id="name" name="name"
-                       class="form-control" placeholder="Ваше ім'я">
-            </div>
+        <form method="POST" action="{{ url_for('contacts') }}" novalidate>
+            {{ form.hidden_tag() }}
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" name="email"
-                       class="form-control" placeholder="Ваш email">
-            </div>
+            {{ render_field(form.name) }}
+            {{ render_field(form.email) }}
+            {{ render_field(form.phone) }}
+            {{ render_field(form.subject) }}
+            {{ render_field(form.message) }}
 
-            <div class="mb-3">
-                <label for="message" class="form-label">Повідомлення</label>
-                <textarea id="message" name="message"
-                          class="form-control" rows="4"
-                          placeholder="Ваше повідомлення"></textarea>
-            </div>
-
-            <button type="button" class="btn btn-dark">
-                Надіслати
-            </button>
+            {{ form.submit(class="btn btn-dark") }}
         </form>
     </section>
 </div>
