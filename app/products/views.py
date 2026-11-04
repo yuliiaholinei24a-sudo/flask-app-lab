@@ -2,38 +2,13 @@ from datetime import datetime
 from decimal import Decimal
 
 from flask import abort, flash, redirect, render_template, url_for
+from tinydb import Query
+from werkzeug.exceptions import RequestEntityTooLarge
 
 from . import product_bp
 from .db import products_table
 from .forms import ProductForm
-
-products = [
-    {
-        "id": 1,
-        "name": "Таємна історія",
-        "author": "Донна Тартт",
-        "price": 650,
-        "content": "Шестеро студентів престижного коледжу захоплюються античною культурою. Їхня дружба, інтелектуальні пошуки та небезпечні таємниці поступово призводять до трагедії.",
-        "image": "images/books/secret-history.jpg"
-    },
-    {
-        "id": 2,
-        "name": "Bunny",
-        "author": "Мона Авад",
-        "price": 540,
-        "content": "Студентка Саманта потрапляє до дивного товариства однокурсниць, які називають одна одну Bunny. Її життя поступово перетворюється на химерну суміш реальності, фантазії та жаху.",
-        "image": "images/books/bunny.jpg"
-    },
-    {
-        "id": 3,
-        "name": "Піранезі",
-        "author": "Сюзанна Кларк",
-        "price": 490,
-        "content": "Піранезі живе у величезному загадковому Будинку, наповненому нескінченними залами, статуями й океанськими припливами. Поступово він починає відкривати правду про цей світ.",
-        "image": "images/books/piranesi.jpg"
-    }
-]
-
+from .images import delete_image, save_image
 
 
 @product_bp.route("/")
@@ -61,12 +36,23 @@ def product_detail(product_id):
     )
 
 
-
 @product_bp.route("/add", methods=["GET", "POST"])
 def product_add():
     form = ProductForm()
 
     if form.validate_on_submit():
+        image_filename = None
+
+        try:
+            image_filename = save_image(form.image.data)
+        except (ValueError, RequestEntityTooLarge) as error:
+            flash(str(error), "danger")
+            return render_template(
+                "products/add_product.html",
+                title="Додати книжку",
+                form=form,
+            ), 400
+
         price = form.price.data.quantize(Decimal("0.01"))
 
         product = {
@@ -75,15 +61,12 @@ def product_add():
             "price": str(price),
             "category": form.category.data,
             "quantity": form.quantity.data,
-            "image": "",
+            "image": image_filename or "",
             "created_at": datetime.now().isoformat(timespec="seconds"),
         }
 
         product_id = products_table.insert(product)
-        products_table.update(
-            {"id": product_id},
-            doc_ids=[product_id],
-        )
+        products_table.update({"id": product_id}, doc_ids=[product_id])
 
         flash("Книжку успішно додано!", "success")
         return redirect(url_for("products.product_add"))
@@ -108,6 +91,23 @@ def product_edit(product_id):
     form = ProductForm()
 
     if form.validate_on_submit():
+        image_filename = product.get("image", "")
+
+        if form.image.data and form.image.data.filename:
+            try:
+                new_image = save_image(form.image.data)
+            except (ValueError, RequestEntityTooLarge) as error:
+                flash(str(error), "danger")
+                return render_template(
+                    "products/edit_product.html",
+                    title="Редагувати книжку",
+                    form=form,
+                    product=product,
+                ), 400
+
+            delete_image(image_filename)
+            image_filename = new_image
+
         price = form.price.data.quantize(Decimal("0.01"))
 
         products_table.update(
@@ -117,6 +117,7 @@ def product_edit(product_id):
                 "price": str(price),
                 "category": form.category.data,
                 "quantity": form.quantity.data,
+                "image": image_filename,
             },
             doc_ids=[product_id],
         )
@@ -152,6 +153,7 @@ def product_delete(product_id):
         abort(404)
 
     products_table.remove(doc_ids=[product_id])
+    delete_image(product.get("image", ""))
 
     flash("Книжку успішно видалено!", "success")
     return redirect(url_for("products.product_list"))

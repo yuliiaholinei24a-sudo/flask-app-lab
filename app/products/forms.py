@@ -8,7 +8,12 @@ from wtforms import (
     SubmitField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired, InputRequired, Length, NumberRange
+from wtforms.validators import (
+    DataRequired,
+    InputRequired,
+    Length,
+    NumberRange,
+)
 
 
 class ProductForm(FlaskForm):
@@ -16,15 +21,13 @@ class ProductForm(FlaskForm):
         "Назва книжки",
         validators=[
             DataRequired(message="Введіть назву книжки"),
-            Length(min=3, message="Назва повинна містити мінімум 3 символи"),
+            Length(min=3, message="Назва повинна містити щонайменше 3 символи"),
         ],
     )
 
     content = TextAreaField(
         "Опис книжки",
-        validators=[
-            DataRequired(message="Введіть опис книжки"),
-        ],
+        validators=[DataRequired(message="Введіть опис книжки")],
         render_kw={"rows": 5, "cols": 40},
     )
 
@@ -48,9 +51,7 @@ class ProductForm(FlaskForm):
             ("science", "Наукова література"),
             ("other", "Інше"),
         ],
-        validators=[
-            DataRequired(message="Оберіть категорію"),
-        ],
+        validators=[DataRequired(message="Оберіть категорію")],
     )
 
     quantity = IntegerField(
@@ -62,12 +63,12 @@ class ProductForm(FlaskForm):
     )
 
     image = FileField(
-        "Зображення книжки",
+        "Обкладинка книжки",
         validators=[
             FileAllowed(
-                ["png", "jpg", "jpeg"],
-                message="Дозволені лише PNG, JPG та JPEG",
-            ),
+                ["jpg", "jpeg", "png"],
+                "Дозволені лише PNG, JPG та JPEG",
+            )
         ],
     )
 
