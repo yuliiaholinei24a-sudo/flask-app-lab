@@ -1,8 +1,8 @@
+
 {% extends "base.html" %}
 
 {% block content %}
 <section class="book-detail">
-
     <div class="row align-items-center g-4">
 
         <div class="col-md-5 text-center">
@@ -20,7 +20,6 @@
         </div>
 
         <div class="col-md-7">
-
             <h1 class="books-title">
                 {{ product.name }}
             </h1>
@@ -50,13 +49,37 @@
                 {{ product.price }} грн
             </h3>
 
-            <a href="{{ url_for('products.product_list') }}"
-               class="btn book-btn">
-                Назад до каталогу
-            </a>
+            <div class="d-flex gap-2 flex-wrap">
 
+                <a href="{{ url_for('products.product_edit', product_id=product.id) }}"
+                   class="btn btn-dark d-flex align-items-center justify-content-center"
+                   style="width: 190px; height: 48px;">
+                    Редагувати
+                </a>
+
+                <form method="POST"
+                      action="{{ url_for('products.product_delete', product_id=product.id) }}"
+                      onsubmit="return confirm('Ви впевнені, що хочете видалити книжку?');">
+
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="{{ csrf_token() }}">
+
+                    <button type="submit"
+                            class="btn btn-danger"
+                            style="width: 190px; height: 48px;">
+                        Видалити
+                    </button>
+                </form>
+
+                <a href="{{ url_for('products.product_list') }}"
+                   class="btn book-btn d-flex align-items-center justify-content-center"
+                   style="width: 190px; height: 48px;">
+                    Назад до каталогу
+                </a>
+
+            </div>
         </div>
     </div>
-
 </section>
 {% endblock %}

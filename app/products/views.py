@@ -96,3 +96,62 @@ def product_add():
         title="Додати книжку",
         form=form,
     )
+
+
+@product_bp.route("/<int:product_id>/edit", methods=["GET", "POST"])
+def product_edit(product_id):
+    product = products_table.get(doc_id=product_id)
+
+    if product is None:
+        abort(404)
+
+    form = ProductForm()
+
+    if form.validate_on_submit():
+        price = form.price.data.quantize(Decimal("0.01"))
+
+        products_table.update(
+            {
+                "name": form.name.data.strip(),
+                "content": form.content.data.strip(),
+                "price": str(price),
+                "category": form.category.data,
+                "quantity": form.quantity.data,
+            },
+            doc_ids=[product_id],
+        )
+
+        flash("Книжку успішно оновлено!", "success")
+        return redirect(
+            url_for("products.product_detail", product_id=product_id)
+        )
+
+    if form.is_submitted() and form.errors:
+        flash("Перевірте правильність заповнення форми", "danger")
+
+    if not form.is_submitted():
+        form.name.data = product["name"]
+        form.content.data = product["content"]
+        form.price.data = Decimal(product["price"])
+        form.category.data = product["category"]
+        form.quantity.data = product["quantity"]
+
+    return render_template(
+        "products/edit_product.html",
+        title="Редагувати книжку",
+        form=form,
+        product=product,
+    )
+
+
+@product_bp.route("/<int:product_id>/delete", methods=["POST"])
+def product_delete(product_id):
+    product = products_table.get(doc_id=product_id)
+
+    if product is None:
+        abort(404)
+
+    products_table.remove(doc_ids=[product_id])
+
+    flash("Книжку успішно видалено!", "success")
+    return redirect(url_for("products.product_list"))

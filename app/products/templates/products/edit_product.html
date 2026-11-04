@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "render_field.html" import render_field %}
+
+{% block content %}
+<section class="books-page">
+    <div class="container">
+        <h1 class="books-title text-center mb-4">
+            Редагувати книжку
+        </h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <form method="POST"
+                      action="{{ url_for('products.product_edit', product_id=product.id) }}"
+                      enctype="multipart/form-data"
+                      novalidate>
+
+                    {{ form.hidden_tag() }}
+
+                    {{ render_field(form.name) }}
+                    {{ render_field(form.content) }}
+                    {{ render_field(form.price) }}
+                    {{ render_field(form.category) }}
+                    {{ render_field(form.quantity) }}
+                    {{ render_field(form.image) }}
+
+                    <div class="d-flex gap-2">
+                        {{ form.submit(class="btn btn-dark") }}
+
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}"
+                           class="btn btn-outline-secondary">
+                            Скасувати
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
