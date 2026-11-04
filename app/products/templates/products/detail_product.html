@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <section class="book-detail">
 
     <div class="row align-items-center g-4">
 
         <div class="col-md-5 text-center">
-            <img
-                src="{{ url_for('static', filename=product.image) }}"
-                class="detail-cover"
-                alt="Обкладинка книги {{ product.name }}"
-            >
+            {% if product.image %}
+                <img
+                    src="{{ url_for('static', filename=product.image) }}"
+                    class="detail-cover"
+                    alt="Обкладинка книги {{ product.name }}"
+                >
+            {% else %}
+                <div class="p-5 border rounded text-muted">
+                    Немає зображення
+                </div>
+            {% endif %}
         </div>
 
         <div class="col-md-7">
@@ -20,14 +25,25 @@
                 {{ product.name }}
             </h1>
 
-            <h5 class="book-author mb-4">
-                {{ product.author }}
-            </h5>
-
-            <h4>Про книгу</h4>
+            <h4 class="mt-4">Про книгу</h4>
 
             <p class="detail-description">
                 {{ product.content }}
+            </p>
+
+            <p>
+                <strong>Категорія:</strong>
+                {{ product.category }}
+            </p>
+
+            <p>
+                <strong>Кількість:</strong>
+                {{ product.quantity }}
+            </p>
+
+            <p>
+                <strong>Дата додавання:</strong>
+                {{ product.created_at | replace("T", " ") }}
             </p>
 
             <h3 class="book-price my-4">
@@ -36,12 +52,11 @@
 
             <a href="{{ url_for('products.product_list') }}"
                class="btn book-btn">
-                ← Назад до каталогу
+                Назад до каталогу
             </a>
 
         </div>
     </div>
 
 </section>
-
 {% endblock %}

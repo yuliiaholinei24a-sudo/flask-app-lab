@@ -35,21 +35,21 @@ products = [
 ]
 
 
+
 @product_bp.route("/")
 def product_list():
+    products = products_table.all()
+
     return render_template(
         "products/products.html",
         title="Каталог книг",
-        products=products
+        products=products,
     )
 
 
 @product_bp.route("/<int:product_id>")
 def product_detail(product_id):
-    product = next(
-        (p for p in products if p["id"] == product_id),
-        None
-    )
+    product = products_table.get(doc_id=product_id)
 
     if product is None:
         abort(404)
@@ -57,8 +57,9 @@ def product_detail(product_id):
     return render_template(
         "products/detail_product.html",
         title=product["name"],
-        product=product
+        product=product,
     )
+
 
 
 @product_bp.route("/add", methods=["GET", "POST"])
