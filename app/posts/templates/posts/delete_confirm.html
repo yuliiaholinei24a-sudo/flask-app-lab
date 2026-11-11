@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('posts.static', filename='css/posts.css') }}">
+{% endblock %}
+
+{% block content %}
+<h1>Видалення поста</h1>
+
+<div class="alert alert-warning">
+    Ви дійсно хочете видалити пост «{{ post.title }}»?
+</div>
+
+<form method="post">
+    {{ form.hidden_tag() }}
+
+    <div class="d-flex flex-wrap gap-2">
+        {{ form.submit(class_="btn btn-danger") }}
+
+        <a
+            href="{{ url_for('posts.detail_post', id=post.id) }}"
+            class="btn btn-outline-secondary"
+        >
+            Скасувати
+        </a>
+    </div>
+</form>
+{% endblock %}

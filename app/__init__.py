@@ -1,19 +1,57 @@
 import os
+from pathlib import Path
 
-from flask import Flask
+from flask import Flask, render_template
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+from sqlalchemy.orm import DeclarativeBase
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get(
-    "SECRET_KEY", "dev-secret-key-change-me"
-)
+from .config import configurations
 
-csrf = CSRFProtect(app)
 
-from . import views
+class Base(DeclarativeBase):
+    pass
 
-from .users import user_bp
-app.register_blueprint(user_bp)
 
-from .products import product_bp
-app.register_blueprint(product_bp)
+db = SQLAlchemy(model_class=Base)
+migrate = Migrate()
+csrf = CSRFProtect()
+
+
+def create_app(config_name=None):
+    app = Flask(__name__)
+    config_name = config_name or os.getenv("APP_ENV", "development")
+
+    if config_name not in configurations:
+        raise ValueError(f"Невідома конфігурація: {config_name}")
+
+    app.config.from_object(configurations[config_name])
+
+    if not app.config["SECRET_KEY"]:
+        raise RuntimeError("Укажи SECRET_KEY у файлі .env")
+
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    csrf.init_app(app)
+
+    from .views import register_routes
+    from .users import user_bp
+    from .products import product_bp
+    from .posts import post_bp
+
+    register_routes(app)
+    app.register_blueprint(user_bp)
+    app.register_blueprint(product_bp)
+    app.register_blueprint(post_bp)
+
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template(
+            "404.html",
+            title="Сторінку не знайдено",
+        ), 404
+
+    return app

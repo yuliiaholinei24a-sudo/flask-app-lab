@@ -1,15 +1,28 @@
 {% macro render_field(field) %}
-<div class="mb-3">
-    {{ field.label(class="form-label") }}
+    {% if field.type == "BooleanField" %}
+        <div class="form-check mb-3">
+            {{ field(class_="form-check-input") }}
+            {{ field.label(class_="form-check-label") }}
 
-    {{ field(class="form-control" + (" is-invalid" if field.errors else "")) }}
-
-    {% if field.errors %}
-        <div class="invalid-feedback">
             {% for error in field.errors %}
-                <div>{{ error }}</div>
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="mb-3">
+            {{ field.label(class_="form-label") }}
+
+            {% set css = "form-select" if field.type == "SelectField" else "form-control" %}
+
+            {% if field.errors %}
+                {% set css = css ~ " is-invalid" %}
+            {% endif %}
+
+            {{ field(class_=css, **kwargs) }}
+
+            {% for error in field.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
             {% endfor %}
         </div>
     {% endif %}
-</div>
 {% endmacro %}

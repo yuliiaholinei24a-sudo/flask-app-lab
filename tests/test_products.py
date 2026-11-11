@@ -1,43 +1,40 @@
 import io
 import tempfile
 import unittest
-from decimal import Decimal
 from pathlib import Path
 from unittest.mock import patch
 
 from tinydb import TinyDB
 
-from app import app
-from app.products import views
-from werkzeug.datastructures import FileStorage
-from app.products import images
+from app import create_app
+from app.products import images, views
 
 
 class ProductTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
+
         self.db = TinyDB(
             Path(self.temp_dir.name) / "products.json"
         )
-
         self.table = self.db.table("products")
 
         self.table_patch = patch.object(
-            views, "products_table", self.table
+            views,
+            "products_table",
+            self.table,
         )
         self.table_patch.start()
 
         self.upload_patch = patch.object(
-            views, "save_image", return_value=None
+            views,
+            "save_image",
+            return_value=None,
         )
         self.upload_patch.start()
 
-        app.config.update(
-            TESTING=True,
-            WTF_CSRF_ENABLED=False,
-        )
-
-        self.client = app.test_client()
+        self.app = create_app("testing")
+        self.client = self.app.test_client()
 
     def tearDown(self):
         self.upload_patch.stop()
@@ -57,6 +54,7 @@ class ProductTests(unittest.TestCase):
         }
 
         product_id = self.table.insert(product)
+
         self.table.update(
             {"id": product_id},
             doc_ids=[product_id],
@@ -99,7 +97,6 @@ class ProductTests(unittest.TestCase):
 
     def test_product_not_found(self):
         response = self.client.get("/products/99999")
-
         self.assertEqual(response.status_code, 404)
 
     def test_create_product(self):
@@ -113,15 +110,9 @@ class ProductTests(unittest.TestCase):
 
         product = self.table.all()[0]
 
-        self.assertEqual(
-            product["name"], "Нова книжка"
-        )
-        self.assertEqual(
-            product["price"], "250.00"
-        )
-        self.assertEqual(
-            product["quantity"], 5
-        )
+        self.assertEqual(product["name"], "Нова книжка")
+        self.assertEqual(product["price"], "250.00")
+        self.assertEqual(product["quantity"], 5)
 
     def test_create_invalid_name(self):
         data = self.valid_form_data()
@@ -161,8 +152,8 @@ class ProductTests(unittest.TestCase):
 
     def test_edit_product(self):
         product_id = self.create_product()
-
         data = self.valid_form_data()
+
         data["name"] = "Оновлена книжка"
         data["price"] = "500.00"
 
@@ -175,12 +166,8 @@ class ProductTests(unittest.TestCase):
 
         product = self.table.get(doc_id=product_id)
 
-        self.assertEqual(
-            product["name"], "Оновлена книжка"
-        )
-        self.assertEqual(
-            product["price"], "500.00"
-        )
+        self.assertEqual(product["name"], "Оновлена книжка")
+        self.assertEqual(product["price"], "500.00")
 
     def test_edit_not_found(self):
         response = self.client.get(
@@ -224,9 +211,13 @@ class ProductTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(len(self.table), 1)
 
-        
     def test_create_bunny_with_image(self):
-        image_path = Path(app.static_folder) / "images" / "books" / "bunny.jpg"
+        image_path = (
+            Path(self.app.static_folder)
+            / "images"
+            / "books"
+            / "bunny.jpg"
+        )
 
         self.assertTrue(
             image_path.is_file(),
@@ -235,14 +226,25 @@ class ProductTests(unittest.TestCase):
 
         upload_dir = Path(self.temp_dir.name) / "uploads"
 
-        with patch.object(images, "UPLOAD_FOLDER", upload_dir):
-            with patch.object(views, "save_image", images.save_image):
+        with patch.object(
+            images,
+            "UPLOAD_FOLDER",
+            upload_dir,
+        ):
+            with patch.object(
+                views,
+                "save_image",
+                images.save_image,
+            ):
                 with image_path.open("rb") as image_file:
                     response = self.client.post(
                         "/products/add",
                         data={
                             "name": "Bunny",
-                            "content": "Роман про студентів, дружбу та загадкові події.",
+                            "content": (
+                                "Роман про студентів, дружбу "
+                                "та загадкові події."
+                            ),
                             "price": "450.00",
                             "category": "fiction",
                             "quantity": "5",
@@ -276,7 +278,6 @@ class ProductTests(unittest.TestCase):
                 saved_image.read_bytes(),
                 original.read(),
             )
-
 
 
 if __name__ == "__main__":

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "macros/post_fields.html" import render_field %}
+
+{% block css %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('posts.static', filename='css/posts.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="mb-4">{{ title }}</h1>
+
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            {{ render_field(form.title) }}
+            {{ render_field(form.content, rows=8) }}
+            {{ render_field(form.category) }}
+            {{ render_field(form.publish_date) }}
+            {{ render_field(form.enabled) }}
+
+            <div class="d-flex flex-wrap gap-2">
+                {{ form.submit(class_="btn btn-primary") }}
+
+                <a
+                    href="{{ url_for('posts.detail_post', id=post.id) if post else url_for('posts.all_posts') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    Скасувати
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
