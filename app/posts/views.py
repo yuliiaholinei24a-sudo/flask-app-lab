@@ -1,10 +1,10 @@
-from flask import flash, redirect, render_template, session, url_for
+from flask import flash, redirect, render_template, url_for
 
 from app import db
 
 from . import post_bp
 from .forms import DeletePostForm, PostForm
-from .models import Post
+from .models import Post, Tag
 
 
 @post_bp.route("")
@@ -29,13 +29,20 @@ def create_post():
     form = PostForm()
 
     if form.validate_on_submit():
+        selected_tags = []
+        if form.tags.data:
+            selected_tags = db.session.scalars(
+                db.select(Tag).where(Tag.id.in_(form.tags.data))
+            ).all()
+
         post = Post(
             title=form.title.data,
             content=form.content.data,
             posted=form.publish_date.data,
             category=form.category.data,
             is_active=form.enabled.data,
-            author=session.get("username") or "Anonymous",
+            user_id=form.author_id.data,
+            tags=selected_tags,
         )
 
         db.session.add(post)
@@ -74,13 +81,23 @@ def update_post(id):
     if not form.is_submitted():
         form.enabled.data = post.is_active
         form.publish_date.data = post.posted
+        form.author_id.data = post.user_id
+        form.tags.data = [tag.id for tag in post.tags]
 
     if form.validate_on_submit():
+        selected_tags = []
+        if form.tags.data:
+            selected_tags = db.session.scalars(
+                db.select(Tag).where(Tag.id.in_(form.tags.data))
+            ).all()
+
         post.title = form.title.data
         post.content = form.content.data
         post.posted = form.publish_date.data
         post.category = form.category.data
         post.is_active = form.enabled.data
+        post.user_id = form.author_id.data
+        post.tags = selected_tags
 
         db.session.commit()
 

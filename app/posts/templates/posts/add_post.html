@@ -16,8 +16,11 @@
 
             {{ render_field(form.title) }}
             {{ render_field(form.content, rows=8) }}
-            {{ render_field(form.category) }}
             {{ render_field(form.publish_date) }}
+            {{ render_field(form.category) }}
+            {{ render_field(form.author_id) }}
+            {{ render_field(form.tags, size=5) }}
+            <div class="form-text mb-3">Утримуйте Ctrl (або Cmd на Mac), щоб обрати кілька тегів.</div>
             {{ render_field(form.enabled) }}
 
             <div class="d-flex flex-wrap gap-2">

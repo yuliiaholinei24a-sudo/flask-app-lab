@@ -25,9 +25,12 @@
                 >
 
                 <div class="card-body d-flex flex-column">
-                    <span class="badge bg-secondary align-self-start mb-2">
-                        {{ post.category }}
-                    </span>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-secondary">
+                            {{ post.category }}
+                        </span>
+                        <small class="text-muted">by {{ post.user.username }}</small>
+                    </div>
 
                     <h2 class="h5">{{ post.title }}</h2>
 
@@ -36,6 +39,14 @@
                     </p>
 
                     <p>{{ post.content[:100] }}{% if post.content|length > 100 %}…{% endif %}</p>
+
+                    {% if post.tags %}
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            {% for tag in post.tags %}
+                                <span class="badge bg-light text-dark border">#{{ tag.name }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
                     <a
                         href="{{ url_for('posts.detail_post', id=post.id) }}"

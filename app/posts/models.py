@@ -1,13 +1,53 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, Enum, String, Text, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Table, Text, true
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
 
 
 def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+post_tags = Table(
+    "post_tags",
+    db.Model.metadata,
+    Column("post_id", Integer, ForeignKey("posts.id"), primary_key=True),
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
+)
+
+
+class User(db.Model):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    def __repr__(self):
+        return f"User({self.email!r})"
+
+
+class Tag(db.Model):
+    __tablename__ = "tags"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+
+    posts: Mapped[list["Post"]] = relationship(
+        secondary=post_tags,
+        back_populates="tags",
+    )
+
+    def __repr__(self):
+        return f"<Tag {self.name!r}>"
 
 
 class Post(db.Model):
@@ -53,11 +93,16 @@ class Post(db.Model):
         nullable=False,
     )
 
-    author: Mapped[str] = mapped_column(
-        String(20),
-        default="Anonymous",
-        server_default="Anonymous",
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
         nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="posts")
+
+    tags: Mapped[list["Tag"]] = relationship(
+        secondary=post_tags,
+        back_populates="posts",
     )
 
     def __repr__(self):

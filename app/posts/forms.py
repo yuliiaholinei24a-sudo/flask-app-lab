@@ -3,13 +3,16 @@ from wtforms import (
     BooleanField,
     DateTimeLocalField,
     SelectField,
+    SelectMultipleField,
     StringField,
     SubmitField,
     TextAreaField,
 )
 from wtforms.validators import DataRequired, Length
 
-from .models import utc_now
+from app import db
+
+from .models import Tag, User, utc_now
 
 
 def strip_text(value):
@@ -63,7 +66,27 @@ class PostForm(FlaskForm):
         validators=[DataRequired()],
     )
 
+    author_id = SelectField(
+        "Автор",
+        coerce=int,
+        validators=[DataRequired(message="Оберіть автора.")],
+    )
+
+    tags = SelectMultipleField(
+        "Теги",
+        coerce=int,
+    )
+
     submit = SubmitField("Зберегти")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        users = db.session.scalars(db.select(User).order_by(User.id)).all()
+        self.author_id.choices = [(user.id, user.username) for user in users]
+
+        all_tags = db.session.scalars(db.select(Tag).order_by(Tag.name)).all()
+        self.tags.choices = [(tag.id, tag.name) for tag in all_tags]
 
 
 class DeletePostForm(FlaskForm):
