@@ -1,13 +1,19 @@
 from datetime import datetime, timezone
 
+from flask_login import UserMixin
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String, Table, Text, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app import db
+from app import bcrypt, db, login_manager
 
 
 def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+@login_manager.user_loader
+def user_loader(user_id):
+    return db.session.get(User, int(user_id))
 
 
 post_tags = Table(
@@ -18,7 +24,7 @@ post_tags = Table(
 )
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -30,6 +36,12 @@ class User(db.Model):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+
+    def set_password(self, raw_password: str) -> None:
+        self.password = bcrypt.generate_password_hash(raw_password).decode("utf-8")
+
+    def check_password(self, raw_password: str) -> bool:
+        return bcrypt.check_password_hash(self.password, raw_password)
 
     def __repr__(self):
         return f"User({self.email!r})"

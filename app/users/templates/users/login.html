@@ -1,39 +1,26 @@
 {% extends "base.html" %}
+{% from "macros/post_fields.html" import render_field %}
 
 {% block content %}
 <div class="auth-card">
-    <h1 class="text-center mb-4">Вхід у систему</h1>
+    <h1 class="text-center mb-2">Вхід</h1>
+    <p class="text-center text-muted mb-4">
+        Будь ласка, введіть ваш email та пароль
+    </p>
 
-    <form method="POST" action="{{ url_for('users.login') }}">
-        <div class="mb-3">
-            <label for="username" class="form-label">
-                Ім'я користувача
-            </label>
-            <input
-                type="text"
-                class="form-control"
-                id="username"
-                name="username"
-                required
-            >
-        </div>
+    <form method="POST" action="{{ url_for('users.login') }}" novalidate>
+        {{ form.hidden_tag() }}
 
-        <div class="mb-4">
-            <label for="password" class="form-label">
-                Пароль
-            </label>
-            <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                required
-            >
-        </div>
+        {{ render_field(form.email) }}
+        {{ render_field(form.password) }}
+        {{ render_field(form.remember) }}
 
-        <button type="submit" class="btn book-btn w-100">
-            Увійти
-        </button>
+        {{ form.submit(class_="btn book-btn w-100 mt-2") }}
     </form>
+
+    <p class="text-center mt-3 mb-0">
+        Ще не зареєстровані?
+        <a href="{{ url_for('users.register') }}" class="auth-link">Реєстрація</a>
+    </p>
 </div>
 {% endblock %}

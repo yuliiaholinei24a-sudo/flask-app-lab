@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 from flask import Flask, render_template
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
@@ -17,6 +19,11 @@ class Base(DeclarativeBase):
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
 csrf = CSRFProtect()
+bcrypt = Bcrypt()
+login_manager = LoginManager()
+login_manager.login_view = "users.login"
+login_manager.login_message = "Будь ласка, увійдіть у систему для доступу до цієї сторінки."
+login_manager.login_message_category = "warning"
 
 
 def create_app(config_name=None):
@@ -36,6 +43,8 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
 
     from .views import register_routes
     from .users import user_bp
